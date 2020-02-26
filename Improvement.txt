@@ -1,0 +1,115 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+public class Improvement extends SS_OAS
+{
+	public static void ImprovementMethod()
+	{
+		for(int i=0;i<pop.size();i++)
+		{
+			//Solution s=Improve(pop.get(i));
+			Solution s=Improve(pop.get(i));
+			while(s.obj>pop.get(i).obj)
+			{
+				pop.get(i).obj=s.obj;
+				for(int j=0;j<num;j++)
+				{
+					pop.get(i).sol.get(j).beg=s.sol.get(j).beg;
+					pop.get(i).sol.get(j).fin=s.sol.get(j).fin;
+					pop.get(i).sol.get(j).in=s.sol.get(j).in;
+					pop.get(i).sol.get(j).seq=s.sol.get(j).seq;
+				}
+				//s=Improve(s);
+				s=Improve(s);
+			}
+		}
+	}
+	
+	public static Solution Improve(Solution s)
+	{
+		ArrayList<Solution> impsol=new ArrayList<>();
+		impsol.add(s);
+		for(int i=0;i<num-1;i++)
+		{
+			if(s.sol.get(i).in!=s.sol.get(i+1).in)
+			{
+				Solution isol = new Solution();
+				for(int j=0;j<num;j++)
+				{
+					isol.sol.add((Order) s.sol.get(j).clone());
+					isol.sol.get(j).beg=0;
+					isol.sol.get(j).fin=0;
+				}
+				int k=isol.sol.get(i).in;
+				isol.sol.get(i).in=isol.sol.get(i+1).in;
+				isol.sol.get(i+1).in=k;
+				impsol.add(Feasible(isol));
+			}
+		}
+		Collections.sort(impsol,new comp());
+		return impsol.get(0);
+	}
+	
+	public static Solution Improve2(Solution s)
+	{
+		ArrayList<Solution> impsol=new ArrayList<>();
+		impsol.add(s);
+		for(int i=0;i<num;i++)
+		{
+			Solution isol = new Solution();
+			for(int j=0;j<num;j++)
+			{
+				isol.sol.add((Order) s.sol.get(j).clone());
+				isol.sol.get(j).beg=0;
+				isol.sol.get(j).fin=0;
+			}
+			isol.sol.get(i).in-=1;
+			impsol.add(Feasible(isol));
+		}
+		
+		Collections.sort(impsol,new comp());
+		return impsol.get(0);
+	}
+	
+	public static Solution Feasible(Solution isol)
+	{
+		double time=0;
+		int h=0;
+		for(int i=0;i<num;i++)
+		{
+			if(isol.sol.get(i).in==1)
+			{
+				if(isol.sol.get(i).r>=time)
+				{
+					isol.sol.get(i).beg=isol.sol.get(i).r;
+					isol.sol.get(i).fin=isol.sol.get(i).beg+isol.sol.get(i).p;
+					isol.sol.get(i).seq=h++;
+					time=isol.sol.get(i).p+isol.sol.get(i).r;					
+				}
+				else if(time+isol.sol.get(i).p<=isol.sol.get(i).b)
+				{
+					isol.sol.get(i).beg=time;
+					isol.sol.get(i).fin=time+isol.sol.get(i).p;
+					isol.sol.get(i).seq=h++;
+					time=time+isol.sol.get(i).p;
+				}
+				else
+				{
+					isol.sol.get(i).in=0;
+				}
+			}
+		}
+		isol.obj=SolutionGeneration.ObjectiveCalculator(isol.sol);
+		return isol;
+	}
+	
+	static class comp implements Comparator<Solution> 
+	{
+		@Override
+	    public int compare(Solution s1, Solution s2) 
+	    {
+	        return Double.compare(1/s1.obj,1/s2.obj);
+	    }
+	}
+}

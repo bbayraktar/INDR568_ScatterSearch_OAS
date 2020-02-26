@@ -1,0 +1,58 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+
+public class GetData extends SS_OAS
+{
+
+	static int[] Data = {10,9,9,6};
+	static ArrayList<String> DataS = new ArrayList<>();
+	static ArrayList<double[]> adata = new ArrayList<>();
+	
+	static double[] r = new double[Data[0]];
+	static double[] p = new double[Data[0]];
+	static double[] e = new double[Data[0]];
+	static double[] d = new double[Data[0]];
+	static double[] b = new double[Data[0]];
+	static double[] w = new double[Data[0]];
+	
+	public static void Get_Data() throws FileNotFoundException
+	{
+		System.out.println();
+		File file = new File(".\\project_data\\Dataslack_"+Data[0]+"orders_Tao"+Data[1]+"R"+Data[2]+"_"+Data[3]+"_without_setup.dat");
+		
+		Scanner scnr = new Scanner(file);
+		
+		while(scnr.hasNextLine())
+		{
+			String line = scnr.nextLine();
+			DataS.add(line);
+		}
+		
+		int[] index = {1,4,7,10,13,16};
+		for(int i=0;i<6;i++)
+		{
+			String[] k = DataS.get(index[i]).split(",");
+			double[] ki = new double[k.length]; 
+			for(int j=0;j<k.length;j++)
+			{
+				ki[j] = Double.parseDouble(k[j]);
+			}
+			adata.add(ki);
+		}
+		
+		for(int j=1;j<=Data[0];j++)
+		{
+			r[j-1]=adata.get(0)[j];
+			p[j-1]=adata.get(1)[j];
+			e[j-1]=adata.get(2)[j];
+			d[j-1]=adata.get(3)[j];
+			b[j-1]=adata.get(4)[j];
+			w[j-1]=adata.get(5)[j];
+		}
+		
+		scnr.close();
+	}
+}
